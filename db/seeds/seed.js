@@ -1,4 +1,3 @@
-const { query } = require("../connection");
 const db = require("../connection");
 const format = require("pg-format");
 
@@ -36,7 +35,7 @@ const seed = (data) => {
               title VARCHAR,
               review_body TEXT,
               designer VARCHAR,
-              review_image_url TEXT,
+              review_img_url TEXT,
               votes INT,
               category VARCHAR REFERENCES categories(slug),
               owner VARCHAR REFERENCES users(username),
@@ -81,14 +80,14 @@ const seed = (data) => {
           .then(() => {
             const queryStr = format(
               `INSERT INTO reviews
-          (title, review_body, designer, review_image_url, votes, created_at, owner, category)
+          (title, review_body, designer, review_img_url, votes, created_at, owner, category)
           VALUES %L`,
               reviewData.map((review) => {
                 return [
                   review.title,
                   review.review_body,
                   review.designer,
-                  review.review_image_url,
+                  review.review_img_url,
                   review.votes,
                   review.created_at,
                   review.owner,
