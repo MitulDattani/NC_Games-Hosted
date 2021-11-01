@@ -55,5 +55,47 @@ describe("/api/reviews", () => {
           });
         });
     });
+
+    test('Status 404: Returns 404 with "Bad review id" if bad path used', () => {
+      return request(app)
+        .get("/api/reviews/dog")
+        .expect(404)
+        .then((response) => {
+        expect(response.body.msg).toBe("Bad review_id")
+      })
+    });
+
+    test('Status 404: Returns 404 with "No review found for review_id: 9999" id exceeds this', () => {
+      return request(app)
+        .get("/api/reviews/9999")
+        .expect(404)
+        .then((response) => {
+        expect(response.body.msg).toBe("No review found for review_id: 9999")
+      })
+    });
   });
+
+  describe('PATCH /api/reviews/:review_id', () => {
+    test('Status 200: Correctly increments votes (Positive)', () => {
+      return request(app)
+        .patch("/api/reviews/1")
+        .send({ inc_votes: 1 })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.review.votes).toBe(2)
+        })
+    });
+
+    test('Status 200: Correctly decrements votes (Negative)', () => {
+      return request(app)
+        .patch("/api/reviews/1")
+        .send({ inc_votes: -1 })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.review.votes).toBe(0)
+        })
+    });
+
+  });
+
 });
