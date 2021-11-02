@@ -8,7 +8,7 @@ beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe("/api/categories", () => {
-  describe("GET", () => {
+  describe("GET /", () => {
     test("Status 200: Returns object of categories", () => {
       return request(app)
         .get("/api/categories")
@@ -61,8 +61,8 @@ describe("/api/reviews", () => {
         .get("/api/reviews/dog")
         .expect(404)
         .then((response) => {
-        expect(response.body.msg).toBe("Bad review_id")
-      })
+          expect(response.body.msg).toBe("Bad review_id");
+        });
     });
 
     test('Status 404: Returns 404 with "No review found for review_id: 9999" id exceeds this', () => {
@@ -70,32 +70,60 @@ describe("/api/reviews", () => {
         .get("/api/reviews/9999")
         .expect(404)
         .then((response) => {
-        expect(response.body.msg).toBe("No review found for review_id: 9999")
-      })
+          expect(response.body.msg).toBe("No review found for review_id: 9999");
+        });
     });
   });
 
-  describe('PATCH /api/reviews/:review_id', () => {
-    test('Status 200: Correctly increments votes (Positive)', () => {
+  describe("PATCH /api/reviews/:review_id", () => {
+    test("Status 200: Correctly increments votes (Positive)", () => {
       return request(app)
         .patch("/api/reviews/1")
         .send({ inc_votes: 1 })
         .expect(200)
         .then((res) => {
-          expect(res.body.review.votes).toBe(2)
-        })
+          expect(res.body.review.votes).toBe(2);
+        });
     });
 
-    test('Status 200: Correctly decrements votes (Negative)', () => {
+    test("Status 200: Correctly decrements votes (Negative)", () => {
       return request(app)
         .patch("/api/reviews/1")
         .send({ inc_votes: -1 })
         .expect(200)
         .then((res) => {
-          expect(res.body.review.votes).toBe(0)
-        })
+          expect(res.body.review.votes).toBe(0);
+        });
     });
 
-  });
+    test("Status 200: Ignores other properties on the object if multiple keys are passed", () => {
+      return request(app)
+        .patch("/api/reviews/1")
+        .send({ inc_votes: "1", name: "mitch" })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.review.votes).toBe(2);
+        });
+    });
 
+    test("Status 400: Responds with message if body is empty", () => {
+      return request(app)
+        .patch("/api/reviews/1")
+        .send()
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).toBe("Patch body is empty");
+        });
+    });
+
+    test("Status 400: Responds with message if inc_votes is not a number", () => {
+      return request(app)
+        .patch("/api/reviews/1")
+        .send({ inc_votes: "dog" })
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).toBe("Invalid input for inc_votes");
+        });
+    });
+  });
 });

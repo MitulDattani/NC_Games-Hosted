@@ -13,10 +13,13 @@ exports.getReviewById = (req, res, next) => {
     .catch(next);
 };
 
-exports.updateReviewVotesById = (req, res) => {
-    const { review_id } = req.params;
-    const {inc_votes} = req.body
-    fetchAndUpdateReviewVotes(review_id, inc_votes).then((review) => {
+exports.updateReviewVotesById = (req, res, next) => {
+  const { review_id } = req.params;
+    const { inc_votes } = req.body;
+    
+    fetchAndUpdateReviewVotes(review_id, inc_votes)
+        .then((review) => {
     res.status(200).send({ review });
-  });
+        })
+    .catch(next)
 };

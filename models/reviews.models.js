@@ -16,6 +16,20 @@ exports.fetchReviewById = (review_id) => {
 };
 
 exports.fetchAndUpdateReviewVotes = (review_id, inc_votes) => {
+  if (!inc_votes) {
+    return Promise.reject({
+      status: 400,
+      msg: "Patch body is empty",
+    });
+  }
+
+  if (/^[\d]|^-[\d]/.test(inc_votes) === false) {
+    return Promise.reject({
+      status: 400,
+      msg: "Invalid input for inc_votes",
+    });
+  }
+
   let queryArr = [review_id];
   let queryStr = `UPDATE reviews `;
 
