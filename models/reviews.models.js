@@ -46,3 +46,60 @@ exports.fetchAndUpdateReviewVotes = (review_id, inc_votes) => {
     return rows[0];
   });
 };
+
+exports.fetchReviews = (sort_by = "created_at", order_by = "ASC", category) => {
+  if (
+    ![
+      "review_id",
+      "owner",
+      "title",
+      "category",
+      "review_img_url",
+      "votes",
+      "created_at",
+      "comment_count",
+    ].includes(sort_by)
+  ) {
+    return Promise.reject({
+      status: 400,
+      msg: "sort_by query invalid input",
+    });
+  }
+
+  if (!["ASC", "asc", "DESC", "desc"].includes(order_by)) {
+    return Promise.reject({
+      status: 400,
+      msg: "order_by query invalid input",
+    });
+  }
+
+  let queryStr = `SELECT 
+                    reviews.review_id,
+                    reviews.owner,
+                    reviews.title,
+                    reviews.category,
+                    reviews.review_img_url,
+                    reviews.votes,
+                    reviews.created_at,
+                  COUNT(comments.comment_id) AS comment_count
+                  FROM reviews JOIN comments on reviews.review_id = comments.comment_id`;
+
+  let queryArr = [];
+
+  if (category) {
+    queryArr.push(category);
+    queryStr += ` WHERE reviews.category = $1`;
+  }
+
+  queryStr += ` GROUP BY reviews.review_id ORDER BY ${sort_by} ${order_by}`;
+
+  return db.query(queryStr, queryArr).then(({ rows }) => {
+    // if (rows.length === 0) {
+    //   return Promise.reject({
+    //     status: 400,
+    //     msg: "Category does not exist",
+    //   });
+    // }
+    return rows;
+  });
+};
