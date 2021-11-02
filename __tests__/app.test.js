@@ -157,7 +157,7 @@ describe("/api/reviews", () => {
         });
     });
 
-    describe("/?sort_by", () => {
+    describe("?sort_by", () => {
       test("Status 200: Accepts sort_by query sorting columns", () => {
         return request(app)
           .get("/api/reviews?sort_by=category")
@@ -189,7 +189,7 @@ describe("/api/reviews", () => {
       });
     });
 
-    describe("/?order_by", () => {
+    describe("?order_by", () => {
       test("Status 200: Accepts order_by query to change from ASC/DESC", () => {
         return request(app)
           .get("/api/reviews?order_by=DESC")
@@ -221,7 +221,7 @@ describe("/api/reviews", () => {
       });
     });
 
-    describe("/?category", () => {
+    describe("?category", () => {
       test("Status 200: Accepts category query", () => {
         return request(app)
           .get("/api/reviews?category=dexterity")
@@ -243,12 +243,12 @@ describe("/api/reviews", () => {
           });
       });
 
-      test("Status 400: category that is not in the database", () => {
+      test("Status 404: category that is not in the database", () => {
         return request(app)
           .get("/api/reviews?category=not-in-db")
-          .expect(200)
+          .expect(404)
           .then(({ body }) => {
-            expect(body.msg).toBe("Category does not exists");
+            expect(body.msg).toBe("Category does not exist");
           });
       });
 
@@ -256,7 +256,7 @@ describe("/api/reviews", () => {
         return request(app)
           .get("/api/reviews")
           .query({ category: "children's games" })
-          .expect(200)
+          .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe("Category has no reviews");
           });
