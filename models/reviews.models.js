@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const checkExists = require("../db/utils");
 
 exports.fetchReviewById = (review_id) => {
   return db
@@ -82,7 +83,7 @@ exports.fetchReviews = (sort_by = "created_at", order_by = "ASC", category) => {
                     reviews.votes,
                     reviews.created_at,
                   COUNT(comments.comment_id) AS comment_count
-                  FROM reviews JOIN comments on reviews.review_id = comments.comment_id`;
+                  FROM reviews LEFT JOIN comments on reviews.review_id = comments.review_id`;
 
   let queryArr = [];
 
@@ -94,12 +95,15 @@ exports.fetchReviews = (sort_by = "created_at", order_by = "ASC", category) => {
   queryStr += ` GROUP BY reviews.review_id ORDER BY ${sort_by} ${order_by}`;
 
   return db.query(queryStr, queryArr).then(({ rows }) => {
-    // if (rows.length === 0) {
-    //   return Promise.reject({
-    //     status: 400,
-    //     msg: "Category does not exist",
-    //   });
-    // }
+    if (!rows.length) {
+      return checkExists("categories", "slug", category).then(() => {
+        return Promise.reject({
+          status: 400,
+          msg: "Category has no reviews",
+        });
+      });
+    }
+
     return rows;
   });
 };

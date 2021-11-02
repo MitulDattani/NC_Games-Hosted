@@ -1,5 +1,5 @@
 exports.handlesHomeMadeErrors = (err, req, res, next) => {
-  console.log(err)
+
   if (err.code === "22P02") {
     res.status(404).send({ msg: "Bad review_id" });
   } else if (err.status && err.msg) {
